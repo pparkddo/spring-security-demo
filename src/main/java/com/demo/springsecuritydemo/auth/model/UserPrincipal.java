@@ -19,6 +19,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     private final Long id;
     private final String name;
+    private final String nickname;
     private final String email;
     private final String password;
     private final Collection<CustomAuthority> authorities;
@@ -36,6 +37,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         return UserPrincipal.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .authorities(authorities.stream().map(CustomAuthority::of).collect(Collectors.toUnmodifiableList()))
@@ -63,7 +65,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         return true;
     }
 
-   @Override
+    @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
@@ -74,10 +76,11 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     }
 
     @Builder
-    private UserPrincipal(Long id, String name, String email, String password,
+    private UserPrincipal(Long id, String name, String nickname, String email, String password,
                           Collection<CustomAuthority> authorities, Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
+        this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
