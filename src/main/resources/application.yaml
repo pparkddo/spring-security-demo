@@ -1,4 +1,4 @@
 spring:
   profiles:
     group:
-      "local": "local, local-oauth"
+      local: "local, local-oauth"
