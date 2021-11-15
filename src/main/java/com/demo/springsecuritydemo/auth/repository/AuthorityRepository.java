@@ -12,4 +12,5 @@ public interface AuthorityRepository extends JpaRepository<Authority, Long> {
 
     List<Authority> findByUser(User user);
 
+    void deleteByUser(User user);
 }

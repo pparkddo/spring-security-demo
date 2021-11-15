@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public enum Role {
 
-    USER("ROLE_USER");
+    USER("ROLE_USER"),
+    ADMIN("ROLE_ADMIN");
 
     private final String name;
 

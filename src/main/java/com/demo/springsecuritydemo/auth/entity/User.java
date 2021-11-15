@@ -50,7 +50,8 @@ public class User {
     }
 
     @Builder
-    private User(String name, String nickname, String email, String imageUrl, boolean emailVerified, String password, AuthProvider authProvider, String providerId) {
+    private User(String name, String nickname, String email, String imageUrl, boolean emailVerified,
+        String password, AuthProvider authProvider, String providerId) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
