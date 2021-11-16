@@ -1,9 +1,9 @@
 package com.demo.springsecuritydemo.auth.service;
 
 import com.demo.springsecuritydemo.auth.constant.Role;
+import com.demo.springsecuritydemo.auth.dto.request.ChangedNickname;
 import com.demo.springsecuritydemo.auth.entity.Authority;
 import com.demo.springsecuritydemo.auth.entity.User;
-import com.demo.springsecuritydemo.auth.dto.request.ChangedNickname;
 import com.demo.springsecuritydemo.auth.model.UserPrincipal;
 import com.demo.springsecuritydemo.auth.repository.AuthorityRepository;
 import com.demo.springsecuritydemo.auth.repository.UserRepository;
@@ -18,6 +18,7 @@ public class MemberService {
 
     private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
+    private final AuthenticationTokenService authenticationTokenService;
 
     @Transactional
     public void changeNickname(UserPrincipal userPrincipal, ChangedNickname changedNickname) {
@@ -30,6 +31,9 @@ public class MemberService {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         if (!isUserAdmin(user)) {
             authorityRepository.save(Authority.builder().user(user).role(Role.ADMIN).build());
+            UserPrincipal updated = UserPrincipal.of(user, authorityRepository.findByUser(user),
+                userPrincipal.getAttributes());
+            authenticationTokenService.updateAuthentication(updated);
         }
     }
 
