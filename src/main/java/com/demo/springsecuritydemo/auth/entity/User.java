@@ -52,8 +52,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private final List<Authority> authorities = new ArrayList<>();
 
-    public void changeName(String name) {
-        this.name = name;
+    public void changeName(String nickname) {
+        this.nickname = nickname;
     }
 
     public void changeImageUrl(String imageUrl) {

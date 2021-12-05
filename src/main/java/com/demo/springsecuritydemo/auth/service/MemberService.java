@@ -24,6 +24,9 @@ public class MemberService {
     public void changeNickname(UserPrincipal userPrincipal, ChangedNickname changedNickname) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         user.changeName(changedNickname.getNickname());
+        UserPrincipal updated = UserPrincipal.of(user, authorityRepository.findByUser(user),
+            userPrincipal.getAttributes());
+        authenticationTokenService.updateAuthentication(updated);
     }
 
     @Transactional
