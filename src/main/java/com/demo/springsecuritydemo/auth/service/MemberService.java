@@ -2,12 +2,14 @@ package com.demo.springsecuritydemo.auth.service;
 
 import com.demo.springsecuritydemo.auth.constant.Role;
 import com.demo.springsecuritydemo.auth.dto.request.ChangedNickname;
+import com.demo.springsecuritydemo.auth.dto.response.AuthorityResponse;
 import com.demo.springsecuritydemo.auth.entity.Authority;
 import com.demo.springsecuritydemo.auth.entity.User;
 import com.demo.springsecuritydemo.auth.model.UserPrincipal;
 import com.demo.springsecuritydemo.auth.repository.AuthorityRepository;
 import com.demo.springsecuritydemo.auth.repository.UserRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void grantAdmin(UserPrincipal userPrincipal) {
+    public List<AuthorityResponse> grantAdmin(UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         if (!isUserAdmin(user)) {
             authorityRepository.save(Authority.builder().user(user).role(Role.ADMIN).build());
@@ -38,6 +40,7 @@ public class MemberService {
                 userPrincipal.getAttributes());
             authenticationTokenService.updateAuthentication(updated);
         }
+        return user.getAuthorities().stream().map(AuthorityResponse::of).collect(Collectors.toList());
     }
 
     private boolean isUserAdmin(User user) {

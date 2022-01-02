@@ -1,12 +1,15 @@
 package com.demo.springsecuritydemo.auth.oauth2;
 
 import com.demo.springsecuritydemo.auth.config.property.AppProperties;
+import com.demo.springsecuritydemo.auth.constant.Role;
 import com.demo.springsecuritydemo.auth.exception.BadRequestException;
+import com.demo.springsecuritydemo.auth.model.CustomAuthority;
 import com.demo.springsecuritydemo.auth.util.CookieUtils;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Optional;
-import javax.servlet.ServletException;
+import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,10 +27,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private static final String REDIRECT_URI_PARAM_COOKIE_NAME = HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
     private static final String TOKEN_PARAMETER_NAME = "token";
+    private static final String AUTHORITIES_PARAMETER_NAME = "authorities";
+    private static final String AUTHORITY_DELIMITER = ",";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-        Authentication authentication) throws IOException, ServletException {
+        Authentication authentication) throws IOException {
         String targetUrl = determineTargetUrl(request, response, authentication);
 
         if (response.isCommitted()) {
@@ -51,11 +56,23 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
+        String sessionId = request.getSession().getId();
+        String authorities = getAuthorities((Collection<CustomAuthority>) authentication.getAuthorities());
+
         return UriComponentsBuilder.fromUriString(targetUrl)
-            .queryParam(TOKEN_PARAMETER_NAME, request.getSession().getId()).build().toUriString();
+            .queryParam(TOKEN_PARAMETER_NAME, sessionId)
+            .queryParam(AUTHORITIES_PARAMETER_NAME, authorities)
+            .build().toUriString();
     }
 
-    protected void clearAuthenticationAttributes(HttpServletRequest request,
+    private String getAuthorities(Collection<CustomAuthority> authorities) {
+         return authorities.stream()
+            .map(CustomAuthority::getRole)
+            .map(Role::name)
+            .collect(Collectors.joining(AUTHORITY_DELIMITER));
+    }
+
+    private void clearAuthenticationAttributes(HttpServletRequest request,
         HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request,
@@ -66,11 +83,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         URI clientRedirectUri = URI.create(uri);
         return appProperties.getOauth2().getAuthorizedRedirectUris()
             .stream()
-            .anyMatch(authorizedRedirectUri -> {
-                // Only validate host and port. Let the clients use different paths if they want to
-                URI authorizedURI = URI.create(authorizedRedirectUri);
-                return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                    && authorizedURI.getPort() == clientRedirectUri.getPort();
-            });
+            .anyMatch(each -> validateHostAndPort(each, clientRedirectUri));
+    }
+
+    private boolean validateHostAndPort(String authorizedRedirectUri, URI clientRedirectUri) {
+        URI authorizedURI = URI.create(authorizedRedirectUri);
+        return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+            && authorizedURI.getPort() == clientRedirectUri.getPort();
     }
 }

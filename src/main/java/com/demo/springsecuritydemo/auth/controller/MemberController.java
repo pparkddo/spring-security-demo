@@ -1,9 +1,11 @@
 package com.demo.springsecuritydemo.auth.controller;
 
 import com.demo.springsecuritydemo.auth.dto.request.ChangedNickname;
+import com.demo.springsecuritydemo.auth.dto.response.AuthorityResponse;
 import com.demo.springsecuritydemo.auth.dto.response.ServerResponse;
 import com.demo.springsecuritydemo.auth.model.UserPrincipal;
 import com.demo.springsecuritydemo.auth.service.MemberService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,8 +36,7 @@ public class MemberController {
     }
 
     @PostMapping("/authority/admin")
-    public ServerResponse<Boolean> grantAdmin(@AuthenticationPrincipal UserPrincipal user) {
-        memberService.grantAdmin(user);
-        return ServerResponse.ok();
+    public ServerResponse<List<AuthorityResponse>> grantAdmin(@AuthenticationPrincipal UserPrincipal user) {
+        return ServerResponse.ok(memberService.grantAdmin(user));
     }
 }

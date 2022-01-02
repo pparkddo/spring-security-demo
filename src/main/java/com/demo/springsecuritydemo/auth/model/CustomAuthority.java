@@ -3,9 +3,11 @@ package com.demo.springsecuritydemo.auth.model;
 import com.demo.springsecuritydemo.auth.constant.Role;
 import com.demo.springsecuritydemo.auth.entity.Authority;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
+@Getter
 @ToString
 public class CustomAuthority implements GrantedAuthority {
 
