@@ -12,6 +12,10 @@ public class ServerResponse<T> {
     private T data;
     private String errorMessage;
 
+    public static ServerResponse<Boolean> ok() {
+        return new ServerResponse<>(true, true, null);
+    }
+
     public static <T> ServerResponse<T> ok(T data) {
         return new ServerResponse<>(true, data, null);
     }

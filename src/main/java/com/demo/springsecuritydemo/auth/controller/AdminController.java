@@ -4,10 +4,13 @@ import com.demo.springsecuritydemo.auth.dto.request.ChangedAuthority;
 import com.demo.springsecuritydemo.auth.dto.response.AuthorityResponse;
 import com.demo.springsecuritydemo.auth.dto.response.DetailMember;
 import com.demo.springsecuritydemo.auth.dto.response.Member;
+import com.demo.springsecuritydemo.auth.dto.response.ServerResponse;
+import com.demo.springsecuritydemo.auth.model.UserPrincipal;
 import com.demo.springsecuritydemo.auth.service.AdminService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,29 +28,29 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping
-    public String index() {
-        return "hello admin!";
+    public ServerResponse<DetailMember> index(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ServerResponse.ok(adminService.getDetailMember(userPrincipal.getId()));
     }
 
     @GetMapping("/member")
-    public List<Member> getMembers() {
-        return adminService.getMembers();
+    public ServerResponse<List<Member>> getMembers() {
+        return ServerResponse.ok(adminService.getMembers());
     }
 
     @GetMapping("/member/{memberId}")
-    public DetailMember getDetailMember(@PathVariable Long memberId) {
-        return adminService.getDetailMember(memberId);
+    public ServerResponse<DetailMember> getDetailMember(@PathVariable Long memberId) {
+        return ServerResponse.ok(adminService.getDetailMember(memberId));
     }
 
     @PostMapping("/member/{memberId}")
-    public List<AuthorityResponse> changeRole(@PathVariable Long memberId,
+    public ServerResponse<List<AuthorityResponse>> changeRole(@PathVariable Long memberId,
         @RequestBody List<ChangedAuthority> changedAuthorities) {
-        return adminService.changeRole(memberId, changedAuthorities);
+        return ServerResponse.ok(adminService.changeRole(memberId, changedAuthorities));
     }
 
     @DeleteMapping("/member/{memberId}")
-    public boolean deleteMember(@PathVariable Long memberId) {
+    public ServerResponse<Boolean> deleteMember(@PathVariable Long memberId) {
         adminService.deleteMember(memberId);
-        return true;
+        return ServerResponse.ok();
     }
 }

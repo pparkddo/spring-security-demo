@@ -1,6 +1,7 @@
 package com.demo.springsecuritydemo.auth.controller;
 
 import com.demo.springsecuritydemo.auth.dto.request.ChangedNickname;
+import com.demo.springsecuritydemo.auth.dto.response.ServerResponse;
 import com.demo.springsecuritydemo.auth.model.UserPrincipal;
 import com.demo.springsecuritydemo.auth.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -21,20 +22,20 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping
-    public String index(@AuthenticationPrincipal UserPrincipal user) {
-        return "hello " + user.getNickname();
+    public ServerResponse<String> index(@AuthenticationPrincipal UserPrincipal user) {
+        return ServerResponse.ok(user.getNickname());
     }
 
     @PostMapping("/nickname")
-    public String changeNickname(@AuthenticationPrincipal UserPrincipal user,
+    public ServerResponse<Boolean> changeNickname(@AuthenticationPrincipal UserPrincipal user,
         @RequestBody ChangedNickname changedNickname) {
         memberService.changeNickname(user, changedNickname);
-        return "change nickname";
+        return ServerResponse.ok();
     }
 
     @PostMapping("/authority/admin")
-    public String grantAdmin(@AuthenticationPrincipal UserPrincipal user) {
+    public ServerResponse<Boolean> grantAdmin(@AuthenticationPrincipal UserPrincipal user) {
         memberService.grantAdmin(user);
-        return "Authorized !!!";
+        return ServerResponse.ok();
     }
 }
